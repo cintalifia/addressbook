@@ -1,17 +1,21 @@
 # Address Book
-A simple address book application to store and manage contact information.
+Address Book adalah aplikasi web sederhana untuk mengelola data kontak. Aplikasi ini dibuat dengan konsep CRUD (Create, Read, Update, Delete) sehingga pengguna dapat menambah, melihat, mengedit, dan menghapus kontak dengan mudah.
 
-## Link
-- URL Deployment:
-- Repository :
+🔗 Link
+🌍 URL Deployment:
+📁 Repository : https://github.com/cintalifia/addressbook.git
 
-## Features
-- Add, edit, and delete contacts
-- Search contacts by name or email
+✨ Fitur Aplikasi  
+➕ Input Data (Create): Menambahkan kontak baru.
+📄 Menampilkan Data (Read): Melihat daftar kontak yang tersimpan.
+✏️ Mengubah Data (Update): Mengedit informasi kontak.
+🗑️ Menghapus Data (Delete): Menghapus kontak yang tidak diperlukan.
+🔍 Pencarian: Mencari kontak berdasarkan nama atau email.
 
-## Tech Stack
-- HTML
-- CSS
-- JavaScript
+🛠 Teknologi yang Digunakan 
+🌐 HTML — Membuat struktur dasar halaman Address Book.
+🎨 CSS / Tailwind CSS — Mengatur tampilan, warna, layout, dan desain agar lebih modern.
+⚙️ JavaScript — Mengelola logika aplikasi seperti tambah, edit, hapus, dan pencarian kontak.
 
-## Flowchart
+🧩 Flowchart
+Flowchart berikut menggambarkan alur kerja aplikasi Address Book, mulai dari proses menambah kontak, menampilkan data, mengubah data, hingga menghapus kontak.
