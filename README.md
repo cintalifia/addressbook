@@ -2,7 +2,7 @@
 Address Book adalah aplikasi web sederhana untuk mengelola data kontak. Aplikasi ini dibuat dengan konsep CRUD (Create, Read, Update, Delete) sehingga pengguna dapat menambah, melihat, mengedit, dan menghapus kontak dengan mudah.
 
 ## 🔗 Link
-- 🌍 URL Deployment:
+- 🌍 URL Deployment: addressbook-silk.vercel.app
 - 📁 Repository : https://github.com/cintalifia/addressbook.git
 
 ## ✨ Fitur Aplikasi  

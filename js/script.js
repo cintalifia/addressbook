@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.classList.remove("hidden");
     });
 
-    // Edit Kontak
+    // Edit K
     closeModal.addEventListener("click", () => {
         modal.classList.add("hidden");
     });
