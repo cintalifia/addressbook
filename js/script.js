@@ -16,19 +16,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentFilter = "all";
     let contactToDelete = null;
 
-    // === OPEN ADD CONTACT MODAL ===
+    // Menambah Kontak 
     addBtn.addEventListener("click", () => {
         editingId = null;
         form.reset();
         modal.classList.remove("hidden");
     });
 
-    // === CLOSE ADD/EDIT MODAL ===
+    // Edit Kontak
     closeModal.addEventListener("click", () => {
         modal.classList.add("hidden");
     });
 
-    // === SAVE CONTACT ===
+    // Menyimpan Kontak 
     form.addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderContacts(currentFilter, searchInput.value);
     });
 
-    // === RENDER CONTACTS ===
+    // Tampilan ulangb daftar kontak
     function renderContacts(filter = "all", keyword = "") {
         contactList.innerHTML = "";
 
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </td>
             `;
 
-            // === EDIT CONTACT ===
+            // Edit Kontak
             row.querySelector(".edit-btn").addEventListener("click", () => {
                 editingId = c.id;
 
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 modal.classList.remove("hidden");
             });
 
-            // === DELETE CONTACT (OPEN MODAL) ===
+            // Hapus Kontak
             row.querySelector(".delete-btn").addEventListener("click", () => {
                 contactToDelete = c;
                 deleteModal.classList.remove("hidden");
@@ -129,13 +129,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // === CANCEL DELETE ===
+    // Tidak jadi hapus kontak
     cancelDelete.addEventListener("click", () => {
         deleteModal.classList.add("hidden");
         contactToDelete = null;
     });
 
-    // === CONFIRM DELETE ===
+    // Konfirmasi Hapus 
     confirmDelete.addEventListener("click", () => {
         if (contactToDelete) {
             contactToDelete.category = "sampah";
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderContacts(currentFilter, searchInput.value);
     });
 
-    // === FILTER BUTTONS ===
+    // Mencari Kontak
     document.querySelectorAll(".filter-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             currentFilter = btn.dataset.category;
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // === SEARCH ===
+    // Cari Kontak
     searchInput.addEventListener("input", () => {
         renderContacts(currentFilter, searchInput.value);
     });
