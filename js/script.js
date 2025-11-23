@@ -1,159 +1,180 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const addBtn = document.getElementById("addContactBtn");
-    const modal = document.getElementById("modal");
-    const closeModal = document.getElementById("closeModal");
-    const form = document.getElementById("contactForm");
-    const contactList = document.getElementById("contactList");
-    const searchInput = document.getElementById("searchInput");
+let contacts = [];
+let editId = null;
+let deleteId = null;
 
-    // Modal hapus
-    const deleteModal = document.getElementById("deleteConfirmModal");
-    const cancelDelete = document.getElementById("cancelDelete");
-    const confirmDelete = document.getElementById("confirmDelete");
+// Elemen DOM
+const contactList = document.getElementById("contactList");
+const modal = document.getElementById("modal");
+const deleteModal = document.getElementById("deleteConfirmModal");
 
-    let contacts = [];
-    let editingId = null;
-    let currentFilter = "all";
-    let contactToDelete = null;
+// Buka modal tambah kontak
+document.getElementById("addContactBtn").addEventListener("click", () => {
+    editId = null;
+    document.getElementById("contactForm").reset();
+    modal.classList.remove("hidden");
+});
 
-    // Menambah Kontak 
-    addBtn.addEventListener("click", () => {
-        editingId = null;
-        form.reset();
-        modal.classList.remove("hidden");
-    });
+// Tutup modal tambah/edit
+document.getElementById("closeModal").addEventListener("click", () => {
+    modal.classList.add("hidden");
+});
 
-    // Edit K
-    closeModal.addEventListener("click", () => {
-        modal.classList.add("hidden");
-    });
+// Simpan / Update Kontak
+document.getElementById("contactForm").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    // Menyimpan Kontak 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
+    const nama = document.getElementById("Name").value;
+    const phone = document.getElementById("phone").value;
+    const email = document.getElementById("email").value;
+    const alamat = document.getElementById("alamat").value;
+    const category = document.getElementById("category").value;
 
+    if (editId === null) {
+        // Tambah kontak baru
         const newContact = {
-            id: editingId ?? Date.now(),
-            name: document.getElementById("Name").value,
-            phone: document.getElementById("phone").value,
-            email: document.getElementById("email").value,
-            alamat: document.getElementById("alamat").value,
-            category: document.getElementById("category").value.toLowerCase()
+            id: Date.now(),
+            nama,
+            phone,
+            email,
+            alamat,
+            category
         };
-
-        if (editingId) {
-            contacts = contacts.map(c => (c.id === editingId ? newContact : c));
-        } else {
-            contacts.push(newContact);
-        }
-
-        modal.classList.add("hidden");
-        form.reset();
-        editingId = null;
-        renderContacts(currentFilter, searchInput.value);
-    });
-
-    // Tampilan ulangb daftar kontak
-    function renderContacts(filter = "all", keyword = "") {
-        contactList.innerHTML = "";
-
-        const filtered = contacts.filter(c => {
-            const matchCategory =
-                (filter === "all") || (c.category.toLowerCase() === filter.toLowerCase());
-
-            const matchSearch =
-                c.name.toLowerCase().includes(keyword.toLowerCase()) ||
-                c.email.toLowerCase().includes(keyword.toLowerCase()) ||
-                c.phone.toLowerCase().includes(keyword.toLowerCase());
-
-            return matchCategory && matchSearch;
-        });
-
-        if (filtered.length === 0) {
-            contactList.innerHTML = `
-                <tr>
-                    <td colspan="6" class="py-6 text-center text-gray-600">
-                        Tidak ada kontak.
-                    </td>
-                </tr>`;
-            return;
-        }
-
-        filtered.forEach((c) => {
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <td class="p-4">${c.name}</td>
-                <td class="p-4">${c.phone}</td>
-                <td class="p-4">${c.email}</td>
-                <td class="p-4">${c.alamat}</td>
-                <td class="p-4">${c.category}</td>
-
-                <td class="p-4 flex justify-center gap-3">
-
-                    <button class="edit-btn px-3 py-1.5 rounded-xl text-white shadow 
-                        bg-gradient-to-r from-blue-300 to-purple-300 
-                        hover:from-blue-400 hover:to-purple-400 transition flex items-center gap-1">
-                        ✏️ <b>Edit</b>
-                    </button>
-
-                    <button class="delete-btn px-3 py-1.5 rounded-xl text-white shadow
-                        bg-gradient-to-r from-pink-300 to-red-300
-                        hover:from-pink-400 hover:to-red-400 transition flex items-center gap-1">
-                        🗑️ <b>Hapus</b>
-                    </button>
-
-                </td>
-            `;
-
-            // Edit Kontak
-            row.querySelector(".edit-btn").addEventListener("click", () => {
-                editingId = c.id;
-
-                document.getElementById("Name").value = c.name;
-                document.getElementById("phone").value = c.phone;
-                document.getElementById("email").value = c.email;
-                document.getElementById("alamat").value = c.alamat;
-                document.getElementById("category").value = c.category;
-
-                modal.classList.remove("hidden");
-            });
-
-            // Hapus Kontak
-            row.querySelector(".delete-btn").addEventListener("click", () => {
-                contactToDelete = c;
-                deleteModal.classList.remove("hidden");
-            });
-
-            contactList.appendChild(row);
-        });
+        contacts.push(newContact);
+    } else {
+        // Update kontak
+        const idx = contacts.findIndex(c => c.id === editId);
+        contacts[idx] = { ...contacts[idx], nama, phone, email, alamat, category };
     }
 
-    // Tidak jadi hapus kontak
-    cancelDelete.addEventListener("click", () => {
-        deleteModal.classList.add("hidden");
-        contactToDelete = null;
-    });
+    modal.classList.add("hidden");
+    renderContacts();
+});
 
-    // Konfirmasi Hapus 
-    confirmDelete.addEventListener("click", () => {
-        if (contactToDelete) {
-            contactToDelete.category = "sampah";
-        }
-        deleteModal.classList.add("hidden");
-        renderContacts(currentFilter, searchInput.value);
-    });
+// Render tabel kontak
+function renderContacts(filter = "Semua Kontak") {
+    contactList.innerHTML = "";
 
-    // Mencari Kontak
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            currentFilter = btn.dataset.category;
-            renderContacts(currentFilter, searchInput.value);
-        });
-    });
+    let filtered = contacts;
 
-    // Cari Kontak
-    searchInput.addEventListener("input", () => {
-        renderContacts(currentFilter, searchInput.value);
+    if (filter === "sampah") {
+        filtered = contacts.filter(c => c.category === "Sampah");
+    }
+
+    if (filtered.length === 0) {
+        contactList.innerHTML = `
+        <tr id="emptyRow">
+            <td colspan="6" class="py-6 text-gray-600">
+                Belum ada kontak — klik <span class="font-semibold text-pink-600">+ Tambah Kontak</span> untuk mulai
+            </td>
+        </tr>`;
+        return;
+    }
+
+    filtered.forEach(c => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td class="p-4">${c.nama}</td>
+            <td class="p-4">${c.phone}</td>
+            <td class="p-4">${c.email}</td>
+            <td class="p-4">${c.alamat}</td>
+            <td class="p-4">${c.category.charAt(0).toUpperCase() + c.category.slice(1)}</td>
+
+            <td class="p-4 flex gap-2 justify-center">
+
+                <button class="px-3 py-1 rounded-xl bg-blue-300 hover:bg-blue-400 text-white text-sm shadow"
+                    onclick="editContact(${c.id})">
+                    ✏️ Edit
+                </button>
+
+                <button class="px-3 py-1 rounded-xl bg-red-300 hover:bg-red-400 text-white text-sm shadow"
+                    onclick="openDeleteModal(${c.id})">
+                    🗑️ Hapus
+                </button>
+
+            </td>
+        `;
+
+        contactList.appendChild(tr);
+    });
+}
+
+// Edit kontak
+function editContact(id) {
+    editId = id;
+    const c = contacts.find(ct => ct.id === id);
+
+    document.getElementById("Name").value = c.nama;
+    document.getElementById("phone").value = c.phone;
+    document.getElementById("email").value = c.email;
+    document.getElementById("alamat").value = c.alamat;
+    document.getElementById("category").value = c.category;
+
+    modal.classList.remove("hidden");
+}
+
+// Buka modal konfirmasi hapus
+function openDeleteModal(id) {
+    deleteId = id;
+    deleteModal.classList.remove("hidden");
+}
+
+// Batalkan hapus
+document.getElementById("cancelDelete").addEventListener("click", () => {
+    deleteModal.classList.add("hidden");
+    deleteId = null;
+});
+
+// Konfirmasi hapus (hapus permanen)
+document.getElementById("confirmDelete").addEventListener("click", () => {
+    contacts = contacts.filter(c => c.id !== deleteId);
+    deleteModal.classList.add("hidden");
+    deleteId = null;
+    renderContacts();
+});
+
+// Filter kategori
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const filter = btn.dataset.category;
+        renderContacts(filter);
+    });
+});
+
+// Search kontak
+document.getElementById("searchInput").addEventListener("input", function () {
+    const search = this.value.toLowerCase();
+
+    const filtered = contacts.filter(c =>
+        c.nama.toLowerCase().includes(search) ||
+        c.phone.includes(search) ||
+        c.email.toLowerCase().includes(search)
+    );
+
+    contactList.innerHTML = "";
+
+    if (filtered.length === 0) {
+        contactList.innerHTML = `
+        <tr id="emptyRow">
+            <td colspan="6" class="py-6 text-gray-600">
+                Tidak ada kontak ditemukan
+            </td>
+        </tr>`;
+        return;
+    }
+
+    filtered.forEach(c => {
+        const tr = document.createElement("tr");
+        tr.innerHTML =
+            `<td class="p-4">${c.nama}</td>
+            <td class="p-4">${c.phone}</td>
+            <td class="p-4">${c.email}</td>
+            <td class="p-4">${c.alamat}</td>
+            <td class="p-4">${c.category}</td>
+            <td class="p-4">
+                <button onclick="editContact(${c.id})" class="px-3 py-1 bg-blue-300 rounded">Edit</button>
+                <button onclick="openDeleteModal(${c.id})" class="px-3 py-1 bg-red-300 rounded">Hapus</button>
+            </td>`;
+        contactList.appendChild(tr);
     });
 });
