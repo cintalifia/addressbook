@@ -1,5 +1,5 @@
 ## 📸 Tampilan Aplikasi
-![Tampilan](./assets/tampilan.png)
+![tampilan](./assets/tampilan.png)
 
 # Address Book
 
