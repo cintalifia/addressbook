@@ -1,0 +1,94 @@
+@import url("https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,600;1,600&family=Stack+Sans+Headline:wght@200..700&family=Ubuntu:wght@500&display=swap");
+
+body 
+{
+    font-family: "Roboto", sans-serif;
+}
+
+tbody tr 
+{
+    transition: all 0.25s ease;
+}
+
+tbody tr:hover 
+{
+    background-color: rgba(236, 72, 153, 0.05);
+    transform: translateY(-2px);
+}
+
+.action-button 
+{
+    transition: all 0.2s ease;
+}
+
+.action-button:hover 
+{
+    transform: scale(1.1);
+}
+
+.search-input 
+{
+    transition: all 0.3s ease;
+}
+
+.search-input:focus 
+{
+    outline: none;
+    border-color: #ec4899;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25);
+}
+
+dialog:not(.hidden) article 
+{
+    animation: popIn 0.25s ease-out;
+}
+
+@keyframes popIn 
+{
+    from {
+    opacity: 0;
+    transform: scale(0.95);
+    }
+    to {
+    opacity: 1;
+    transform: scale(1);
+    } 
+}
+
+.fade-in 
+{
+    animation: fadeIn 0.35s ease-out;
+}
+
+@keyframes fadeIn 
+{
+    from {
+    opacity: 0;
+    transform: translateY(10px);
+    }
+    to {
+    opacity: 1;
+    transform: translateY(0);
+    }
+}
+
+::-webkit-scrollbar 
+{
+    width: 6px;
+}
+
+::-webkit-scrollbar-track 
+{
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb 
+{
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover 
+{
+    background: #9ca3af;
+}
