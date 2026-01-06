@@ -1,3 +1,6 @@
+/* ==================== DEBUG ==================== */
+console.log("script kebaca ✅");
+
 /* ==================== DATA AWAL ==================== */
 const initialContacts = [
   {
@@ -38,37 +41,76 @@ const initialContacts = [
 let contacts = [];
 let editId = null;
 let deleteId = null;
+let activeFilter = "all";
+
+/* ==================== DOM ==================== */
+const contactList = document.getElementById("contactList");
+const modal = document.getElementById("modal"); // <dialog>
+const deleteModal = document.getElementById("deleteConfirmModal"); // <dialog>
+
+const addBtn = document.getElementById("addContactBtn");
+const form = document.getElementById("contactForm");
+const closeModalBtn = document.getElementById("closeModal");
+
+const cancelDeleteBtn = document.getElementById("cancelDelete");
+const confirmDeleteBtn = document.getElementById("confirmDelete");
+
+const searchInput = document.getElementById("searchInput");
 
 /* ==================== LOCAL STORAGE ==================== */
 function saveContacts() {
   localStorage.setItem("contacts", JSON.stringify(contacts));
 }
 
-/* 🔥 FIX UTAMA: PAKSA PAKAI DATA KAMU */
 function loadContacts() {
-  contacts = [...initialContacts];
-  saveContacts();
+  const saved = localStorage.getItem("contacts");
+  if (saved) {
+    try {
+      contacts = JSON.parse(saved) || [];
+    } catch (err) {
+      console.warn("localStorage rusak, reset ke initial", err);
+      contacts = [...initialContacts];
+      saveContacts();
+    }
+  } else {
+    contacts = [...initialContacts];
+    saveContacts();
+  }
 }
 
-/* ==================== DOM ==================== */
-const contactList = document.getElementById("contactList");
-const modal = document.getElementById("modal");
-const deleteModal = document.getElementById("deleteConfirmModal");
+/* ==================== DIALOG HELPERS (PENTING) ==================== */
+function openDialog(dlg) {
+  // Tailwind "hidden" = display:none; harus dicabut dulu
+  dlg.classList.remove("hidden");
+  if (!dlg.open) dlg.showModal();
+}
+
+function closeDialog(dlg) {
+  if (dlg.open) dlg.close();
+  dlg.classList.add("hidden");
+}
+
+/* Tutup dialog kalau klik backdrop */
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) closeDialog(modal);
+});
+deleteModal.addEventListener("click", (e) => {
+  if (e.target === deleteModal) closeDialog(deleteModal);
+});
 
 /* ==================== OPEN ADD MODAL ==================== */
-document.getElementById("addContactBtn").addEventListener("click", () => {
+addBtn.addEventListener("click", () => {
   editId = null;
-  document.getElementById("contactForm").reset();
-  modal.classList.remove("hidden");
+  form.reset();
+  document.getElementById("category").value = "Semua Kontak";
+  openDialog(modal);
 });
 
 /* ==================== CLOSE MODAL ==================== */
-document.getElementById("closeModal").addEventListener("click", () => {
-  modal.classList.add("hidden");
-});
+closeModalBtn.addEventListener("click", () => closeDialog(modal));
 
 /* ==================== SUBMIT FORM ==================== */
-document.getElementById("contactForm").addEventListener("submit", (e) => {
+form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const nama = document.getElementById("Name").value.trim();
@@ -92,114 +134,46 @@ document.getElementById("contactForm").addEventListener("submit", (e) => {
       category,
     });
   } else {
-    const index = contacts.findIndex((c) => c.id === editId);
-    contacts[index] = {
-      ...contacts[index],
-      nama,
-      phone,
-      email,
-      alamat,
-      category,
-    };
+    const idx = contacts.findIndex((c) => c.id === editId);
+    if (idx !== -1) {
+      contacts[idx] = {
+        ...contacts[idx],
+        nama,
+        phone,
+        email,
+        alamat,
+        category,
+      };
+    }
   }
 
   saveContacts();
-  modal.classList.add("hidden");
-  renderContacts();
+  closeDialog(modal);
+  renderContacts(activeFilter);
 });
 
 /* ==================== RENDER CONTACTS ==================== */
 function renderContacts(filter = "all") {
-  contactList.innerHTML = "";
+  activeFilter = filter;
 
-  let filteredContacts = contacts;
+  let filtered = [...contacts];
+
+  // filter kategori
   if (filter === "sampah") {
-    filteredContacts = contacts.filter((c) => c.category === "Sampah");
+    filtered = filtered.filter((c) => c.category === "Sampah");
   }
 
-  if (filteredContacts.length === 0) {
-    contactList.innerHTML = `
-      <tr>
-        <td colspan="6" class="py-6 text-gray-600">
-          Belum ada kontak
-        </td>
-      </tr>
-    `;
-    return;
+  // search
+  const keyword = (searchInput.value || "").toLowerCase().trim();
+  if (keyword) {
+    filtered = filtered.filter(
+      (c) =>
+        c.nama.toLowerCase().includes(keyword) ||
+        c.phone.includes(keyword) ||
+        c.email.toLowerCase().includes(keyword) ||
+        c.alamat.toLowerCase().includes(keyword)
+    );
   }
-
-  filteredContacts.forEach((c) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="p-4">${c.nama}</td>
-      <td class="p-4">${c.phone}</td>
-      <td class="p-4">${c.email}</td>
-      <td class="p-4">${c.alamat}</td>
-      <td class="p-4">${c.category}</td>
-      <td class="p-4 flex gap-2 justify-center">
-        <button onclick="editContact(${c.id})"
-          class="px-3 py-1 rounded-xl bg-blue-300 hover:bg-blue-400 text-white">
-          ✏️ Edit
-        </button>
-        <button onclick="openDeleteModal(${c.id})"
-          class="px-3 py-1 rounded-xl bg-red-300 hover:bg-red-400 text-white">
-          🗑️ Hapus
-        </button>
-      </td>
-    `;
-    contactList.appendChild(tr);
-  });
-}
-
-/* ==================== EDIT ==================== */
-function editContact(id) {
-  editId = id;
-  const c = contacts.find((ct) => ct.id === id);
-
-  document.getElementById("Name").value = c.nama;
-  document.getElementById("phone").value = c.phone;
-  document.getElementById("email").value = c.email;
-  document.getElementById("alamat").value = c.alamat;
-  document.getElementById("category").value = c.category;
-
-  modal.classList.remove("hidden");
-}
-
-/* ==================== DELETE ==================== */
-function openDeleteModal(id) {
-  deleteId = id;
-  deleteModal.classList.remove("hidden");
-}
-
-document.getElementById("cancelDelete").addEventListener("click", () => {
-  deleteModal.classList.add("hidden");
-  deleteId = null;
-});
-
-document.getElementById("confirmDelete").addEventListener("click", () => {
-  contacts = contacts.filter((c) => c.id !== deleteId);
-  saveContacts();
-  deleteModal.classList.add("hidden");
-  deleteId = null;
-  renderContacts();
-});
-
-/* ==================== FILTER ==================== */
-document.querySelectorAll(".filter-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    renderContacts(btn.dataset.category);
-  });
-});
-
-/* ==================== SEARCH ==================== */
-document.getElementById("searchInput").addEventListener("input", function () {
-  const keyword = this.value.toLowerCase();
-  const filtered = contacts.filter(
-    (c) =>
-      c.nama.toLowerCase().includes(keyword) ||
-      c.phone.includes(keyword) ||
-      c.email.toLowerCase().includes(keyword)
-  );
 
   contactList.innerHTML = "";
 
@@ -207,7 +181,7 @@ document.getElementById("searchInput").addEventListener("input", function () {
     contactList.innerHTML = `
       <tr>
         <td colspan="6" class="py-6 text-gray-600">
-          Tidak ada kontak ditemukan
+          ${keyword ? "Tidak ada kontak ditemukan" : "Belum ada kontak"}
         </td>
       </tr>
     `;
@@ -223,20 +197,82 @@ document.getElementById("searchInput").addEventListener("input", function () {
       <td class="p-4">${c.alamat}</td>
       <td class="p-4">${c.category}</td>
       <td class="p-4 flex gap-2 justify-center">
-        <button onclick="editContact(${c.id})"
-          class="px-3 py-1 bg-blue-300 rounded">
-          Edit
+        <button data-edit="${c.id}"
+          class="px-3 py-1 rounded-xl bg-blue-300 hover:bg-blue-400 text-white">
+          ✏️ Edit
         </button>
-        <button onclick="openDeleteModal(${c.id})"
-          class="px-3 py-1 bg-red-300 rounded">
-          Hapus
+        <button data-del="${c.id}"
+          class="px-3 py-1 rounded-xl bg-red-300 hover:bg-red-400 text-white">
+          🗑️ Hapus
         </button>
       </td>
     `;
     contactList.appendChild(tr);
   });
+}
+
+/* ==================== EVENT DELEGATION (EDIT/DELETE) ==================== */
+contactList.addEventListener("click", (e) => {
+  const editBtn = e.target.closest("[data-edit]");
+  const delBtn = e.target.closest("[data-del]");
+
+  if (editBtn) {
+    const id = Number(editBtn.dataset.edit);
+    editContact(id);
+  }
+
+  if (delBtn) {
+    const id = Number(delBtn.dataset.del);
+    openDeleteModal(id);
+  }
+});
+
+/* ==================== EDIT ==================== */
+function editContact(id) {
+  editId = id;
+  const c = contacts.find((ct) => ct.id === id);
+  if (!c) return;
+
+  document.getElementById("Name").value = c.nama;
+  document.getElementById("phone").value = c.phone;
+  document.getElementById("email").value = c.email;
+  document.getElementById("alamat").value = c.alamat;
+  document.getElementById("category").value = c.category;
+
+  openDialog(modal);
+}
+
+/* ==================== DELETE ==================== */
+function openDeleteModal(id) {
+  deleteId = id;
+  openDialog(deleteModal);
+}
+
+cancelDeleteBtn.addEventListener("click", () => {
+  deleteId = null;
+  closeDialog(deleteModal);
+});
+
+confirmDeleteBtn.addEventListener("click", () => {
+  contacts = contacts.filter((c) => c.id !== deleteId);
+  saveContacts();
+  deleteId = null;
+  closeDialog(deleteModal);
+  renderContacts(activeFilter);
+});
+
+/* ==================== FILTER ==================== */
+document.querySelectorAll(".filter-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    renderContacts(btn.dataset.category);
+  });
+});
+
+/* ==================== SEARCH ==================== */
+searchInput.addEventListener("input", () => {
+  renderContacts(activeFilter);
 });
 
 /* ==================== INIT ==================== */
 loadContacts();
-renderContacts();
+renderContacts("all");
