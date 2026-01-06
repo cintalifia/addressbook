@@ -1,5 +1,5 @@
 /* ==================== DEBUG ==================== */
-console.log("script kebaca ✅");
+console.log();
 
 /* ==================== DATA AWAL ==================== */
 const initialContacts = [
